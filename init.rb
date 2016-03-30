@@ -3,15 +3,16 @@ require 'redmine'
 TEMPLATE_DIR = "./vendor/plugins/redmine/odts/conv1.xslt"
 
 Redmine::Plugin.register :redmine_odts do
-  name 'Redmine Odt plugin'
+  name 'Redmine Odt Upload plugin'
   author 'Tommi Rintala'
-  description 'This is a plugin for uploading ODT (Open Office Writer) documents to Redmine (wiki). 
+  description 'This is a plugin for uploading ODT (Open Office Writer) and DOCX (MS Office Word) documents to Redmine (wiki). 
 Bugs: 
 * bullet and numbered lists are converted to bullet lists 
-* No support for italics, bold or underlining'
-  version '0.0.4'
-  url 'http://www.wasalab.com/~t2r/odts/'
-  author_url 'http://www.wasalab.com/~t2r/'
+* No support for italics, bold or underlining
+* DOCX support is not complete
+  version '0.0.5'
+  url 'http://www.delektre.fi/~t2r/odts/'
+  author_url 'http://www.delektre.fi/~t2r/'
 
   settings :default => {"xsltfile" => TEMPLATE_DIR}
 

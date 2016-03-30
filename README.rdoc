@@ -19,10 +19,12 @@ This plugin uses the following gems:
 * rubyzip
 
 
-= Caveats
+= Bugs
 
 * Text paragraphs don't support bold, underline and italics format however.
 * Some problems with bullets
+* Not all images get loaded
+* Docx support is not completed
 
 = What not to expect
 
