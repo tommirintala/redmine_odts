@@ -3,23 +3,29 @@
 If you  have existing Microsoft  Word or Open Office  documents, which
 you need to transer into Redmine Wiki, then this plugin may help you.
 
-This plugin is used to upload an existing ODT (openoffice) document to
-Redmine  Wiki, so that  each text  paragraph will  create a  Wiki text
-paragraph. In  order to upload  Microsoft Word document, export  it to
-ODT format and upload the ODT document.
+This plugin is used to upload an existing ODT (openoffice) or DOCX (MS
+Word) document to Redmine Wiki, so that each text paragraph will
+create a Wiki text paragraph. In order to upload Microsoft Word
+document, you can also export it to ODT format and upload it as ODT document.
 
 Each document will create a new page in Wiki. Links in document will
 create links in Wiki -page.
 
-= Requirements
+== Requirements
 
-The following programs need to be installed:
+This plugin uses the following gems:
 
-* (/usr/bin|/opt/bitnami/common/bin)/xsltproc
-* /usr/bin/unzip
+* ruby-xslt
+* rubyzip
+
 
 = Caveats
 
 * Text paragraphs don't support bold, underline and italics format however.
 * Some problems with bullets
 
+= What not to expect
+
+This plugin is not fully compliant with odt or docx standards (yes, I
+know there are specifications), it is just a quick hack to upload the
+text content to Wiki.
