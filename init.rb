@@ -9,13 +9,15 @@ Redmine::Plugin.register :redmine_odts do
 Bugs: 
 * bullet and numbered lists are converted to bullet lists 
 * No support for italics, bold or underlining
-* DOCX support is not complete
+* DOCX support is long way from complete'
   version '0.0.5'
   url 'http://www.delektre.fi/~t2r/odts/'
   author_url 'http://www.delektre.fi/~t2r/'
 
-  settings :default => {"xsltfile" => TEMPLATE_DIR}
-
+  settings :default => {
+             "xsltfile" => TEMPLATE_DIR
+           }
+  
   project_module :odts do
     permission :view_odts, :odts => :index
     permission :update_odts, :odts => :update
@@ -23,6 +25,12 @@ Bugs:
   end
 
 
-  menu :project_menu, :odts, { :controller => 'odts', :action => 'index' }, :caption => 'Odts', :after => :activity, :param => :project_id, :before => :settings
-
+  menu :project_menu, :odts, {
+         :controller => 'odts',
+         :action => 'index'
+       },
+       :caption => 'Odts',
+       :after => :activity,
+       :param => :project_id,
+       :before => :settings  
 end

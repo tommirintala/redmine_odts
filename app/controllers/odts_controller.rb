@@ -8,16 +8,16 @@ class OdtsController < ApplicationController
   
   helper :attachments
   include AttachmentsHelper
-
+  
   before_filter :find_project, :authorize, :only => :index
   
   def index
     # @odts = Odt.find(:all)
   end
-
+  
   
   def upload
-    st = my_handle_file(params[:description], params[:filename])
+    st = odts_handle_file(params[:description], params[:filename])
     
     redirect_to :action => 'index',
                 :project_id => Project.find(params[:project_id])
@@ -27,81 +27,11 @@ class OdtsController < ApplicationController
   
   private
 
-  def odts_parse_odt_content(content)
-    str = odts_handle_xslt_transform(content, "conv-odt.xsl")
-  end
   
-  def odts_parse_docx_content(content)
-    str = odts_handle_xslt_transform(content, "conv-docx.xsl")
-  end
-    
   def find_project
     @project = Project.find(params[:project_id])
   end
 
-  def odts_get_temp_dir
-    @logger.info "get_temp_dir()"
-    stamp = Time.now.to_i
-    tmpname = "tom-#{stamp}"
-    if !Dir.exists?(tmpname)
-      @logger.info " create tmpdir: #{tmpname}"
-      Dir.mkdir(tmpname)
-    end
-    return tmpname
-  end
-      
-  def odts_handle_file(thetitle, filename)
-    filenumber = 0
-    tmpdir = otds_get_temp_dir
-    if filename =~ /odt$/
-      mode_odt = true
-    else
-      mode_odt = false
-    end
-    begin
-      @logger.info " Got temporary dir location #{tmpdir}"
-      Zip::File.open(filename) do |zip_file|
-        @logger.info " open ZIP file: #{zip_file}"
-        zip_file.each do |entry|
-          @logger.info "  :begin handle file: '#{entry}'"
-          t = entry.class
-          @logger.info "   type = #{t}"
-          
-          if entry.name =~ /\.(jpg|png)/
-            @logger.info "   IMAGE file"
-          end
-          # parse Images
-          if entry.name =~ /(Pictures|media\/)/
-            @logger.info "   is image"
-            img = entry.get_input_stream.read
-            my_upload_image(filenumber, entry.name, page, img)
-            #else
-            #@logger.info "   not image"
-          end
-          
-          if entry.name =~ /(content.xml|document.xml)/
-            content = entry.get_input_stream.read
-            outname = "#{tmpdir}/content.xml"
-            o = File.new(outname, "w")
-            o.puts(content)
-            o.close()
-            
-            if mode_odt          # odt document
-              wikicontent = my_parse_odt_content(outname)
-            else                 # docx document
-              wikicontent = my_parse_docx_content(outname)
-            end
-            my_upload_to_wiki(page, wikicontent)
-          end
-          
-          filenumber = filenumber + 1
-          @logger.info "  .end of '#{entry}'\n"
-        end
-      end
-    rescue
-      # error?
-    end  
-  end
   
     
 
@@ -148,59 +78,6 @@ class OdtsController < ApplicationController
   # end
 
     
-  def my_upload_image(no, name, page, x)
-    # if it is a directory, return
-    
-    #if File.directory?(x)
-    #  return ""
-    #end
-    
-    tmpfile = "upload-#{no}-#{Time.now.to_i}.tmp"
-    
-    af = ActionController::UploadedTempfile.new(tmpfile)
-    af.binmode
-    af.write(x)
-    #af.original_path = x
-    
-    if File.fnmatch?('*.png', name)
-      af.content_type = "image/png"
-    elsif File.fnmatch?('.tif', name)
-      af.content_type = 'image/tif'
-    elsif File.fnmatch?('.jpg', name)
-      af.content_type = "image/jpeg"
-    else
-      content_type = 'application/binary'
-    end
-    
-    af.rewind
-
-    att = Attachment.create(
-      :container => page,
-      :file => af,
-      :description => "autoloaded image",
-      :author => User.current  )
-    
-    af.unlink
-  end
-  
-  def my_xslt_transform(bodyfile, xslfile)
-    @logger.info "handle_xslt_transform()"
-    @logger.info "  using xml: '#{bodyfile}'"
-    @logger.info "  using xsl: '#{xslfile}'"
-    begin
-      XML::XSLT.registerErrorHandler {|string| puts string}
-      xslt = XML::XSLT.new()
-      xslt.xml = bodyfile
-      xslt.xsl = xslfile
-      #xslt.save("output.rdoc")
-      result = xslt.serve()
-    rescue Errno::ENOENT => msg
-      flash[:error] = msg
-    end
-    
-    #print result.to_s
-    return result.to_s
-  end
 
   
   # def my_xslt_transform(xmlfile, path)
@@ -253,20 +130,6 @@ class OdtsController < ApplicationController
 #  end
 
 
-
-  def my_upload_to_wiki(title, wikicontent)
-    page_title = title
-    page_title ||= "odts-#{Time.now.to_i}"
-    project = Project.find(params[:project_id])
-    #    wiki = project.wiki
-    @auto_page = project.wiki.find_or_new_page(page_title)
-    @auto_page.content = WikiContent.new(:text => wikicontent.to_s, 
-					 :comments => "added by automate",
-					 :author  => User.current)
-    
-    @auto_page.save
-    return @auto_page
-  end
 
 
   
